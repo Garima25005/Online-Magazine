@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PulseWire — Online Magazine</title>
+<meta name="description" content="PulseWire — thoughtful reporting, features & culture" />
+<style>
+  :root{
+    --accent:#0b76ef; --muted:#6b7280; --bg:#f6f8fb; --card:#fff; --maxw:1100px;
+    --glass: rgba(255,255,255,0.85);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#0b1220;line-height:1.5}
+  header{background:linear-gradient(90deg,var(--accent),#145ea8);color:white;padding:28px 16px}
+  .wrap{max-width:var(--maxw);margin:0 auto}
+  .brand{display:flex;gap:14px;align-items:center}
+  .brand h1{margin:0;font-size:1.4rem}
+  nav{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  nav button{background:transparent;border:1px solid rgba(255,255,255,.12);color:white;padding:8px 12px;border-radius:8px;cursor:pointer}
+  main{padding:28px 16px}
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:24px;max-width:var(--maxw);margin:0 auto}
+  .featured {position:relative;background:var(--glass);padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,.06)}
+  .carousel{position:relative;overflow:hidden;border-radius:10px}
+  .slide{display:none;padding:14px}
+  .slide.active{display:block}
+  .slide img{width:100%;height:260px;object-fit:cover;border-radius:8px}
+  .slide h3{margin:10px 0 4px}
+  .controls{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  .controls button{padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:white;color:var(--accent);cursor:pointer}
+  .topics{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .topic{background:white;padding:8px 10px;border-radius:999px;border:1px solid #e6eefc;cursor:pointer}
+  .topic.active{background:var(--accent);color:white;border:none}
+  .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}
+  .search{flex:1;display:flex;gap:8px}
+  .search input{flex:1;padding:8px;border-radius:8px;border:1px solid #d1d5db}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,.04);display:flex;flex-direction:column}
+  .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+  .meta{font-size:.85rem;color:var(--muted);margin-top:8px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .tag{font-size:.75rem;padding:6px 8px;background:#eef5ff;color:var(--accent);border-radius:999px;cursor:pointer}
+  aside{position:relative}
+  .subscribe{background:linear-gradient(180deg,#fff,#f8fbff);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,.04)}
+  .subscribe input{width:100%;padding:10px;border-radius:8px;border:1px solid #d1d5db;margin-top:10px}
+  .subscribe button{margin-top:10px;width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer}
+  .small-list{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+  .small-item{display:flex;gap:12px;align-items:center;background:white;padding:10px;border-radius:8px}
+  .small-item img{width:70px;height:50px;object-fit:cover;border-radius:6px}
+  footer{padding:24px;text-align:center;color:var(--muted);margin-top:40px}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+  .modal.open{display:flex}
+  .sheet{background:white;width:100%;max-width:900px;border-radius:12px;max-height:90vh;overflow:auto;padding:20px}
+  .sheet h2{margin-top:0}
+  .comments{margin-top:18px}
+  .comment{background:#f8fafc;padding:12px;border-radius:8px;margin-bottom:10px}
+  .comment small{color:var(--muted)}
+  .comment-form textarea{width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid #d1d5db}
+  .comment-form button{margin-top:8px;padding:8px 12px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer}
+  /* responsive */
+  @media (max-width:980px){.layout{grid-template-columns:1fr} .featured{order:2} aside{order:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap brand">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden><rect x="1" y="1" width="22" height="22" rx="6" fill="#0b76ef"/><path d="M7 8h10M7 12h10M7 16h6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <div>
+      <h1>PulseWire</h1>
+      <div style="font-size:.95rem;color:rgba(255,255,255,.9)">features • analysis • culture</div>
+    </div>
+    <nav style="margin-left:auto">
+      <button onclick="filterBy('All')">All</button>
+      <button onclick="filterBy('Tech')">Tech</button>
+      <button onclick="filterBy('Politics')">Politics</button>
+      <button onclick="filterBy('Culture')">Culture</button>
+      <button onclick="filterBy('Lifestyle')">Lifestyle</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding:20px">
+  <div class="layout">
+    <section>
+      <!-- Featured carousel -->
+      <div class="featured" aria-hidden="false">
+        <div class="carousel" id="carousel">
+          <!-- slides inserted by JS -->
+        </div>
+        <div class="controls" aria-hidden="true">
+          <button id="prevBtn">◀</button>
+          <button id="nextBtn">▶</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">
+            <input id="search" placeholder="Search articles, tags or authors…" aria-label="Search">
+            <button onclick="doSearch()">Search</button>
+          </div>
+          <div style="margin-left:auto" id="activeFilters"></div>
+        </div>
+      </div>
+
+      <!-- Article grid -->
+      <div id="articles" class="grid" aria-live="polite" style="margin-top:18px"></div>
+    </section>
+
+    <aside>
+      <div class="subscribe" aria-label="Newsletter">
+        <strong>Subscribe to PulseWire</strong>
+        <p style="margin:6px 0;color:var(--muted)">Weekly digest — curated stories & insights</p>
+        <input id="emailInput" type="email" placeholder="you@domain.com" aria-label="email">
+        <button id="subscribeBtn">Subscribe</button>
+        <p id="subMsg" style="margin:8px 0;color:green;font-size:.95rem"></p>
+      </div>
+
+      <div class="small-list">
+        <div style="font-weight:700;margin-top:12px">Featured Reads</div>
+        <div id="smallList"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- Article Modal -->
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="sheet" role="document">
+    <button onclick="closeModal()" style="float:right;border:none;background:transparent;font-size:18px;cursor:pointer">✕</button>
+    <div id="articleContent"></div>
+    <div class="comments">
+      <h3>Comments</h3>
+      <div id="commentList"></div>
+
+      <div class="comment-form" style="margin-top:8px">
+        <input id="commentName" placeholder="Your name" style="width:100%;padding:8px;border-radius:8px;border:1px solid #d1d5db">
+        <textarea id="commentText" placeholder="Write a thoughtful comment…"></textarea>
+        <button id="postComment">Post Comment</button>
+        <p id="commentMsg" style="color:green"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+    <div style="color:var(--muted)">© 2025 PulseWire — independent stories & analysis</div>
+    <div style="color:var(--muted)">Privacy • Terms • Contact</div>
+  </div>
+</footer>
+
+<script>
+/* SAMPLE DATA */
+const ARTICLES = [
+  { id:1, title:"AI & The New Creative Economy", excerpt:"How generative models are remixing work, copyright and culture.", img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900", category:"Tech", tags:["AI","Creativity"], author:"Neha R.", date:"Dec 1, 2025", body:`<p>Generative AI is reshaping creative fields. In this feature we explore the practical impact, ethical questions, and what creators are doing to adapt.</p><p>Longer feature text goes here — include quotes, examples and a strong closing.</p>` },
+  { id:2, title:"City Council Elections: What Changed", excerpt:"A deep dive into voter turnout and policy shifts this season.", img:"https://images.unsplash.com/photo-1554224154-22dec7ec8818?w=900", category:"Politics", tags:["Elections","Policy"], author:"Arjun V.", date:"Nov 28, 2025", body:`<p>The local elections revealed new trends in urban voting patterns, and we examine the causes and consequences.</p>` },
+  { id:3, title:"Slow Travel: A Guide to Meaningful Trips", excerpt:"Why doing less can sometimes mean seeing more.", img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900", category:"Lifestyle", tags:["Travel","Wellbeing"], author:"Maya P.", date:"Nov 24, 2025", body:`<p>Slow travel encourages you to stay longer, know a place better and travel responsibly.</p>` },
+  { id:4, title:"Reviving Vinyl: The Return of Analog Sound", excerpt:"How records found their way back into the mainstream.", img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=900", category:"Culture", tags:["Music","Retro"], author:"Ravi K.", date:"Nov 20, 2025", body:`<p>Vinyl sales have been steadily increasing. We speak to collectors and store owners who say it's about warmth and ritual.</p>` },
+  { id:5, title:"Green Tech Startups to Watch", excerpt:"Innovations merging climate & entrepreneurship.", img:"https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=900", category:"Tech", tags:["Climate","Startups"], author:"Neha R.", date:"Nov 16, 2025", body:`<p>From carbon capture to efficient batteries, these startups are building the next wave of green tech.</p>` }
+];
+
+/* STATE */
+let currentFilter = 'All';
+let filtered = [...ARTICLES];
+let carouselIndex = 0;
+const carouselInterval = 6000;
+
+/* DOM refs */
+const carouselEl = document.getElementById('carousel');
+const articlesEl = document.getElementById('articles');
+const smallList = document.getElementById('smallList');
+const subBtn = document.getElementById('subscribeBtn');
+
+/* RENDER: Featured carousel (first 3) */
+function renderCarousel(){
+  const featured = ARTICLES.slice(0,3);
+  carouselEl.innerHTML = '';
+  featured.forEach((a, i)=>{
+    const slide = document.createElement('div');
+    slide.className = 'slide' + (i===0?' active':'');
+    slide.innerHTML = `<img src="${a.img}" alt="${a.title}"><h3>${a.title}</h3><div style="color:var(--muted)">${a.category} • ${a.date}</div><p style="margin-top:8px">${a.excerpt}</p><button onclick="openArticle(${a.id})" style="margin-top:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:white;cursor:pointer">Read</button>`;
+    carouselEl.appendChild(slide);
+  });
+}
+
+/* Carousel controls */
+function showSlide(idx){
+  const slides = carouselEl.querySelectorAll('.slide');
+  slides.forEach((s,i)=> s.classList.toggle('active', i===idx));
+  carouselIndex = idx;
+}
+document.getElementById('prevBtn').addEventListener('click', ()=> showSlide((carouselIndex-1+3)%3));
+document.getElementById('nextBtn').addEventListener('click', ()=> showSlide((carouselIndex+1)%3));
+setInterval(()=> showSlide((carouselIndex+1)%3), carouselInterval);
+
+/* Render topics and active filters */
+function renderTopics(){
+  const active = document.getElementById('activeFilters');
+  active.innerHTML = `<div style="color:var(--muted)">Filter: <strong>${currentFilter}</strong></div>`;
+}
+
+/* Render article grid */
+function renderArticles(list=filtered){
+  articlesEl.innerHTML = '';
+  if(list.length===0){ articlesEl.innerHTML = '<div style="color:var(--muted)">No articles found.</div>'; return; }
+  list.forEach(a=>{
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `<img src="${a.img}" alt="${a.title}"><div class="meta">${a.category} • ${a.date} • ${a.author}</div><h3 style="margin:8px 0">${a.title}</h3><p style="color:var(--muted);margin:0">${a.excerpt}</p><div class="tags">${a.tags.map(t=>`<span class="tag" onclick="filterByTag('${t}')">${t}</span>`).join('')}</div><div style="margin-top:auto;display:flex;gap:8px;align-items:center;margin-top:12px"><button onclick="openArticle(${a.id})" style="padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer">Read</button><button onclick="saveLater(${a.id})" style="padding:8px 10px;border-radius:8px;border:1px solid #e5e7eb;background:white;cursor:pointer">Save</button></div>`;
+    articlesEl.appendChild(card);
+  });
+}
+
+/* Small list (featured reads) */
+function renderSmall(){
+  const top = ARTICLES.slice(0,3);
+  smallList.innerHTML = '';
+  top.forEach(a=>{
+    const item = document.createElement('div');
+    item.className='small-item';
+    item.innerHTML = `<img src="${a.img}" alt=""><div><strong style="display:block">${a.title}</strong><div style="font-size:.85rem;color:var(--muted)">${a.date}</div></div>`;
+    item.onclick = ()=>openArticle(a.id);
+    smallList.appendChild(item);
+  });
+}
+
+/* Filters */
+function filterBy(cat){
+  currentFilter = cat;
+  renderTopics();
+  if(cat==='All'){ filtered = [...ARTICLES]; }
+  else{ filtered = ARTICLES.filter(a=>a.category===cat); }
+  renderArticles();
+}
+function filterByTag(tag){
+  filtered = ARTICLES.filter(a=>a.tags.includes(tag));
+  renderArticles(filtered);
+}
+
+/* Search */
+function doSearch(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  if(!q){ filtered = [...ARTICLES]; renderArticles(); return; }
+  filtered = ARTICLES.filter(a=> (a.title+a.excerpt+a.author+(a.tags||[]).join(' ')).toLowerCase().includes(q) );
+  renderArticles(filtered);
+}
+
+/* Save for later demo */
+function saveLater(id){
+  const saved = JSON.parse(localStorage.getItem('saved')||'[]');
+  if(!saved.includes(id)){ saved.push(id); localStorage.setItem('saved',JSON.stringify(saved)); alert('Saved for later'); }
+  else alert('Already saved');
+}
+
+/* Subscription (demo localStorage) */
+subBtn.addEventListener('click', ()=>{
+  const email = document.getElementById('emailInput').value.trim();
+  if(!email || !email.includes('@')){ document.getElementById('subMsg').textContent='Enter a valid email'; document.getElementById('subMsg').style.color='crimson'; return; }
+  const subs = JSON.parse(localStorage.getItem('subs')||'[]');
+  if(!subs.includes(email)){ subs.push(email); localStorage.setItem('subs',JSON.stringify(subs)); document.getElementById('subMsg').textContent='Thanks — check your inbox!'; document.getElementById('subMsg').style.color='green'; document.getElementById('emailInput').value=''; }
+  else{ document.getElementById('subMsg').textContent='You are already subscribed'; document.getElementById('subMsg').style.color=varOr('#666','var(--muted)'); }
+});
+
+/* helper to fallback */
+function varOr(fallback, cssVar){
+  try{ return cssVar; }catch(e){ return fallback; }
+}
+
+/* Modal & comments */
+const modal = document.getElementById('modal');
+const articleContent = document.getElementById('articleContent');
+const commentList = document.getElementById('commentList');
+let currentArticle = null;
+
+function openArticle(id){
+  const art = ARTICLES.find(a=>a.id===id);
+  if(!art) return;
+  currentArticle = art;
+  articleContent.innerHTML = `<div style="color:var(--muted)">${art.category} • ${art.date} • ${art.author}</div><h2>${art.title}</h2><img src="${art.img}" style="width:100%;max-height:420px;object-fit:cover;border-radius:8px;margin-top:12px"><div style="margin-top:12px">${art.body}</div>`;
+  modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+  renderComments();
+  window.scrollTo(0,0);
+}
+
+function closeModal(){
+  modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+}
+
+/* comments storage & rendering */
+function renderComments(){
+  const key = 'comments_'+currentArticle.id;
+  const comments = JSON.parse(localStorage.getItem(key)||'[]');
+  commentList.innerHTML = '';
+  if(comments.length===0) commentList.innerHTML = '<div style="color:var(--muted)">No comments yet — be the first to respond.</div>';
+  comments.forEach(c=>{
+    const el = document.createElement('div');
+    el.className='comment';
+    el.innerHTML = `<strong>${escapeHtml(c.name)}</strong> <small>• ${new Date(c.time).toLocaleString()}</small><div style="margin-top:6px">${escapeHtml(c.text)}</div>`;
+    commentList.appendChild(el);
+  });
+}
+
+document.getElementById('postComment').addEventListener('click',()=>{
+  const name = document.getElementById('commentName').value.trim()||'Anonymous';
+  const text = document.getElementById('commentText').value.trim();
+  if(!text){ document.getElementById('commentMsg').textContent='Please write a comment'; document.getElementById('commentMsg').style.color='crimson'; return; }
+  const key = 'comments_'+currentArticle.id;
+  const comments = JSON.parse(localStorage.getItem(key)||'[]');
+  comments.unshift({name, text, time:Date.now()});
+  localStorage.setItem(key, JSON.stringify(comments));
+  document.getElementById('commentName').value=''; document.getElementById('commentText').value=''; document.getElementById('commentMsg').textContent='Comment posted';
+  renderComments();
+  setTimeout(()=>document.getElementById('commentMsg').textContent='',2000);
+});
+
+/* helpers */
+function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+
+/* initial render */
+renderCarousel();
+renderTopics();
+renderArticles();
+renderSmall();
+
+/* auto-advance carousel timer */
+(function auto(){
+  setInterval(()=>{ showSlide((carouselIndex+1)%3); }, carouselInterval);
+})();
+
+</script>
+</body>
+</html>
